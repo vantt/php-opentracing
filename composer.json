@@ -1,0 +1,16 @@
+{
+  "name": "quinluong/tracing-php",
+  "type": "library",
+  "description": "Distributed tracing wrapper for php",
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "require": {
+    "php": ">=7.2",
+    "jukylin/jaeger-php": "v2.1.3"
+  },
+  "autoload": {
+    "psr-4": {
+      "Tracing\\": "src/Tracing/"
+    }
+  }
+}
