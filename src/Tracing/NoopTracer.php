@@ -2,16 +2,65 @@
 
 namespace Tracing;
 
+use OpenTracing\NoopScope;
+use OpenTracing\NoopScopeManager;
 use OpenTracing\NoopSpan;
-use OpenTracing\NoopTracer as OpenTracingNoopTracer;
+use OpenTracing\NoopSpanContext;
+use OpenTracing\SpanContext;
+use OpenTracing\Tracer;
 
-class NoopTracer extends OpenTracingNoopTracer {
+final class NoopTracer implements Tracer {
+
+  public static function create() {
+    return new self();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getScopeManager() {
+    return NoopScopeManager::create();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getActiveSpan() {
+    return NoopSpan::create();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function startActiveSpan($operationName, $finishSpanOnClose = true, $options = []) {
+
+    return NoopScope::create();
+  }
 
   /**
    * {@inheritdoc}
    */
   public function startSpan($operationName, $options = []) {
-    // fix bug NoopTracer does not return Span
     return NoopSpan::create();
   }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function inject(SpanContext $spanContext, $format, &$carrier) {
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function extract($format, $carrier) {
+    return NoopSpanContext::create();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function flush() {
+  }
+
 }
