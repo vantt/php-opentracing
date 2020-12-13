@@ -6,40 +6,36 @@ use Jaeger\Config;
 use Jaeger\Constants;
 use Jaeger\Sampler\ConstSampler;
 use Jaeger\Sampler\ProbabilisticSampler;
-use OpenTracing\NoopSpan;
-use OpenTracing\NoopTracer;
 use OpenTracing\SpanContext;
 use OpenTracing\Tracer;
+use Tracing\NoopTracer;
 
 class Tracing implements Tracer {
 
   private static $instances = [];
 
-  private $_tracer;
+  private $_noopTracer = null;
+  private $_tracer = null;
 
   private $_isEnabled = false;
+  private $_isPaused = false;
 
   public function __construct(?array $arrConfig) {
-    if ($arrConfig === null || count($arrConfig) === 0) {
-      $this->_tracer = new NoopTracer();
+    $this->_noopTracer = new NoopTracer();
 
+    if ($arrConfig === null || count($arrConfig) === 0) {
       return;
     }
 
-    $isEnabled = (bool) $arrConfig['enable'];
-
     if (
-      !$isEnabled
+      !isset($arrConfig['enable'])
+      || (bool) $arrConfig['enable'] === false
       || !isset($arrConfig['name'])
       || !isset($arrConfig['host_port'])
       || !isset($arrConfig['sampler_type'])
     ) {
-      $this->_tracer = new NoopTracer();
-
       return;
     }
-
-    $this->_isEnabled = $isEnabled;
 
     $strName = (string) $arrConfig['name'];
 
@@ -52,8 +48,6 @@ class Tracing implements Tracer {
       || trim($strHostPort) === ''
       || trim($strSamplerType) === ''
     ) {
-      $this->_tracer = new NoopTracer();
-
       return;
     }
 
@@ -66,8 +60,6 @@ class Tracing implements Tracer {
     if (
       $strSamplerType !== 'const' && $strSamplerType !== 'probabilistic'
     ) {
-      $this->_tracer = new NoopTracer();
-
       return;
     }
 
@@ -109,8 +101,8 @@ class Tracing implements Tracer {
 
     $this->_tracer = $tracerConfig->initTracer($strName, $strHostPort);
 
-    if ($this->_tracer === null) {
-      $this->_tracer = new NoopTracer();
+    if ($this->_tracer !== null) {
+      $this->_isEnabled = true;
     }
   }
 
@@ -142,57 +134,83 @@ class Tracing implements Tracer {
   private function __wakeup() {
   }
 
+  private function _getTracer() {
+    if ($this->_isEnabled === true && $this->_isPaused === false) {
+      return $this->_tracer;
+    }
+
+    return $this->_noopTracer;
+  }
+
   /**
    * {@inheritdoc}
    */
   public function getScopeManager() {
-    return $this->_tracer->getScopeManager();
+    $tracer = $this->_getTracer();
+
+    return $tracer->getScopeManager();
   }
 
   /**
    * {@inheritdoc}
    */
   public function getActiveSpan() {
-    return $this->_tracer->getActiveSpan();
+    $tracer = $this->_getTracer();
+
+    return $tracer->getActiveSpan();
   }
 
   /**
    * {@inheritdoc}
    */
   public function startActiveSpan($operationName, $options = []) {
-    return $this->_tracer->startActiveSpan($operationName, $options);
+    $tracer = $this->_getTracer();
+
+    return $tracer->startActiveSpan($operationName, $options);
   }
 
   /**
    * {@inheritdoc}
    */
   public function startSpan($operationName, $options = []) {
-    if ($this->_isEnabled === false) { // fix bug of NoopTracer
-      return NoopSpan::create();
-    }
+    $tracer = $this->_getTracer();
 
-    return $this->_tracer->startSpan($operationName, $options);
+    return $tracer->startSpan($operationName, $options);
   }
 
   /**
    * {@inheritdoc}
    */
   public function inject(SpanContext $spanContext, $format, &$carrier) {
-    $this->_tracer->inject($spanContext, $format, $carrier);
+    $tracer = $this->_getTracer();
+
+    $tracer->inject($spanContext, $format, $carrier);
   }
 
   /**
    * {@inheritdoc}
    */
   public function extract($format, $carrier) {
-    return $this->_tracer->extract($format, $carrier);
+    $tracer = $this->_getTracer();
+
+    return $tracer->extract($format, $carrier);
   }
 
   /**
    * {@inheritdoc}
    */
   public function flush() {
-    $this->_tracer->flush();
+    $tracer = $this->_getTracer();
+
+    $tracer->flush();
+  }
+
+  public function pause() {
+    $this->_isPaused = true;
+  }
+
+  public function resume() {
+    $this->_isPaused = false;
   }
 
 }
