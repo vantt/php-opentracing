@@ -1,6 +1,6 @@
 <?php
 
-namespace Tracing;
+namespace Tracing\Custom;
 
 use OpenTracing\NoopScope;
 use OpenTracing\NoopScopeManager;
@@ -61,6 +61,10 @@ final class NoopTracer implements Tracer {
    * {@inheritdoc}
    */
   public function flush() {
+  }
+
+  public function getSpans() {
+    return [];
   }
 
 }

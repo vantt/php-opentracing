@@ -1,10 +1,14 @@
 <?php
 
-namespace Tracing;
+namespace Tracing\Util;
 
 use Thrift\Factory\TStringFuncFactory;
 
-class Util {
+class SizeUtil {
+
+  const MAX_TAG_SIZE_PER_SPAN_IN_BYTES = 8192; // 8 KB
+
+  const MAX_LOG_SIZE_PER_SPAN_IN_BYTES = 32768; // 32 KB
 
   public static function calcSizeInBytes($data) {
     if ($data === null) {
