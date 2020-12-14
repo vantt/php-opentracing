@@ -12,6 +12,9 @@ use Tracing\NoopTracer;
 
 class Tracing implements Tracer {
 
+  const MAX_TAG_SIZE_PER_SPAN_IN_BYTES = 8192; // 8 KB
+  const MAX_LOG_SIZE_PER_SPAN_IN_BYTES = 32768; // 32 KB
+
   private static $instances = [];
 
   private $_noopTracer = null;
