@@ -48,7 +48,7 @@ if ($spanContext !== null) {
     $spanOptions['child_of'] = $spanContext;
 }
 
-$tracer->startActiveSpan('operation_-_name', $spanOptions);
+$tracer->startActiveSpan('operation_name', $spanOptions);
 ```
 
 ### Injecting span context into request header
@@ -139,9 +139,10 @@ $span->setTag('http.status', '200');
 $span->setTag('http.url', 'abc.com/api/endpoint');
 
 $tracer->startActiveSpan('my_span', [
-    'child_of' => $spanContext,
     'tags' => [
-        'foo' => 'bar'
+        'foo-1' => 'bar-1',
+        'foo-2' => 'bar-2'
+        ...
     ]
 ]);
 ```
@@ -167,6 +168,17 @@ register_shutdown_function(function() {
     // Flush the tracer to the backend
     $tracer->flush();
 });
+```
+
+### Pause and resume
+
+```php
+$tracer->pause();
+...
+// This function won't be instrumented
+doSomething();
+...
+$tracer->resume();
 ```
 
 ## Semantic conventions
