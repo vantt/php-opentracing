@@ -16,12 +16,13 @@ composer require quinluong/tracing-php
 
 ## Usage
 
-### Creating new tracer
+### Creating new tracer using TracerFactory
 
 ```php
-use Tracing\Tracer;
+use Tracing\TracerFactory;
 
-$tracer = Tracer::getInstance('tracer_name', [
+// This instance will be saved in TracerFactory internally by tracer_name, we can use it later by TracerFactory::getByName
+$tracer = TracerFactory::create('tracer_name', [
     'enable' => true,
     'host_port' => 'agent_host:port',
     'sampler_type' => 'const', // const, probabilistic
@@ -61,7 +62,7 @@ $tracer->inject($span->getContext(), Formats\TEXT_MAP, $arrHeader);
 
 ### Creating span
 
-For most use cases, it is recommended that you use the `Tracer::startActiveSpan` function for
+For most use cases, it is recommended that you use the `TracerInterface::startActiveSpan` function for
 creating new spans.
 
 An example of a linear, two level deep span tree using active spans looks like this in PHP code:
@@ -87,7 +88,7 @@ file_get_contents('http://php.net');
 $scope->close();
 ```
 
-When using the `Tracer::startActiveSpan` function the underlying tracer uses an
+When using the `TracerInterface::startActiveSpan` function the underlying tracer uses an
 abstraction called scope manager to keep track of the currently active span.
 
 Starting an active span will always use the currently active span as a parent.
@@ -96,7 +97,7 @@ root span of the trace.
 
 Unless you are using asynchronous code that tracks multiple spans at the same
 time, such as when using cURL Multi Exec or MySQLi Polling it is recommended that you
-use `Tracer::startActiveSpan` everywhere in your application.
+use `TracerInterface::startActiveSpan` everywhere in your application.
 
 The currently active span gets automatically finished when you call `$scope->close()`
 as you can see in the previous examples.
@@ -164,9 +165,11 @@ PHP as a request scoped language has no simple means to pass the collected spans
 
 ```php
 register_shutdown_function(function() {
-    $tracer = Tracer::getInstance('tracer_name');
+    $tracer = TracerFactory::getByName('tracer_name');
     // Flush the tracer to the backend
-    $tracer->flush();
+    if ($tracer !== null) {
+        $tracer->flush();
+    }
 });
 ```
 
