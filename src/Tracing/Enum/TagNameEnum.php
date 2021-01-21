@@ -20,7 +20,11 @@ class TagNameEnum {
 
   const HTTP_URL = 'http.url'; // URL of the request being handled in this segment of the trace, in standard URI format. E.g., "https://domain.net/path/to?resource=here"
 
-  const HTTP_HOSTNAME = 'http.hostname'; // HTTP hostname
+  const HTTP_URL_HOSTNAME = 'http.url.hostname'; // HTTP URL hostname
+
+  const HTTP_URL_PORT = 'http.url.port'; // HTTP URL port
+
+  const HTTP_URL_PATH = 'http.url.path'; // HTTP URL path
 
   const HTTP_PORT = 'http.port';
 
