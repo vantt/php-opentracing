@@ -168,6 +168,10 @@ class JaegerTracer implements Tracer, PauseAbleInterface, BuildableInterface {
         return $this->_getTracer()->getActiveSpan();
     }
 
+    public function getSpans() {
+        return $this->_getTracer()->getSpans();
+    }
+
     public function pause() {
         $this->_isPaused = true;
     }

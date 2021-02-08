@@ -35,7 +35,7 @@ final class NoopTracer implements Tracer, PauseAbleInterface, BuildableInterface
         return NoopSpan::create();
     }
 
-    public function startSpan(string $operationName, $options = []): Span {
+    public function startSpan(string $operationName, array $options = []): Span {
         return NoopSpan::create();
     }
 
@@ -49,7 +49,7 @@ final class NoopTracer implements Tracer, PauseAbleInterface, BuildableInterface
     public function flush(): void {
     }
 
-    public function getSpans() {
+    public function getSpans(): array {
         return [];
     }
 

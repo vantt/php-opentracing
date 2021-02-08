@@ -12,9 +12,15 @@
   "require-dev": {
     "phpunit/phpunit": "^7.5"
   },
+  "archive": {
+    "exclude": [
+      "docker-compose.yml",
+      "runTests.sh"
+    ]
+  },
   "autoload": {
     "psr-4": {
-      "Tracing\\": "src/Tracing/"
+      "Tracing\\": "./src/Tracing"
     }
   },
   "autoload-dev": {

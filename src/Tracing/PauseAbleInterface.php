@@ -2,13 +2,11 @@
 
 namespace Tracing;
 
-use OpenTracing\Tracer;
+interface PauseAbleInterface {
 
-interface PauseAbleInterface extends Tracer {
+    public function pause();
 
-  public function pause();
-
-  public function resume();
+    public function resume();
 
 }
 
