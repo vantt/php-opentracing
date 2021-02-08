@@ -23,7 +23,7 @@ final class NoopTracer implements Tracer, PauseAbleInterface, BuildableInterface
         return new self();
     }
 
-    public function getScopeManager(): ScopeManager {
+    public function getScopeManager() {
         return NoopScopeManager::create();
     }
 
@@ -46,7 +46,7 @@ final class NoopTracer implements Tracer, PauseAbleInterface, BuildableInterface
         return NoopSpanContext::create();
     }
 
-    public function flush(): void {
+    public function flush() {
     }
 
     public function getSpans() {

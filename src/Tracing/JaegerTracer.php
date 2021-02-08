@@ -14,7 +14,7 @@ use OpenTracing\BuildableInterface;
 use OpenTracing\SpanContext;
 use OpenTracing\Tracer;
 use Tracing\Custom\NoopTracer;
-use Tracing\Util\SizeUtil;
+
 use RuntimeException;
 
 class JaegerTracer implements Tracer, PauseAbleInterface, BuildableInterface {
@@ -166,6 +166,10 @@ class JaegerTracer implements Tracer, PauseAbleInterface, BuildableInterface {
 
     public function getActiveSpan() {
         return $this->_getTracer()->getActiveSpan();
+    }
+
+    public function getSpans() {
+        return $this->_getTracer()->getSpans();
     }
 
     public function pause() {
