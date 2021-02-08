@@ -24,6 +24,7 @@ use Tracing\TracerFactory;
 // This instance will be saved in TracerFactory internally by tracer_name, we can use it later by TracerFactory::getByName
 $tracer = TracerFactory::create('tracer_name', [
     'enable' => true,
+    'type' => 'jaeger',
     'host_port' => 'agent_host:port',
     'sampler_type' => 'const', // const, probabilistic
     'sampler_value' => 1 // const: 0 / 1, probabilistic: 0 -> 1

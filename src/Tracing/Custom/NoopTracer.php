@@ -2,69 +2,61 @@
 
 namespace Tracing\Custom;
 
+use OpenTracing\Buildable;
+use OpenTracing\BuildableInterface;
 use OpenTracing\NoopScope;
 use OpenTracing\NoopScopeManager;
 use OpenTracing\NoopSpan;
 use OpenTracing\NoopSpanContext;
+use OpenTracing\Scope;
+use OpenTracing\ScopeManager;
+use OpenTracing\Span;
 use OpenTracing\SpanContext;
 use OpenTracing\Tracer;
+use Tracing\PauseAbleInterface;
 
-final class NoopTracer implements Tracer {
+final class NoopTracer implements Tracer, PauseAbleInterface, BuildableInterface {
 
-  public static function create() {
-    return new self();
-  }
+    use Buildable;
 
-  /**
-   * {@inheritdoc}
-   */
-  public function getScopeManager() {
-    return NoopScopeManager::create();
-  }
+    public static function create() {
+        return new self();
+    }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function getActiveSpan() {
-    return NoopSpan::create();
-  }
+    public function getScopeManager(): ScopeManager {
+        return NoopScopeManager::create();
+    }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function startActiveSpan($operationName, $finishSpanOnClose = true, $options = []) {
+    public function getActiveSpan(): ?Span {
+        return NoopScope::create();
+    }
 
-    return NoopScope::create();
-  }
+    public function startActiveSpan(string $operationName, $options = []): Scope {
+        return NoopSpan::create();
+    }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function startSpan($operationName, $options = []) {
-    return NoopSpan::create();
-  }
+    public function startSpan(string $operationName, $options = []): Span {
+        return NoopSpan::create();
+    }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function inject(SpanContext $spanContext, $format, &$carrier) {
-  }
+    public function inject(SpanContext $spanContext, string $format, &$carrier): void {
+    }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function extract($format, $carrier) {
-    return NoopSpanContext::create();
-  }
+    public function extract(string $format, $carrier): ?SpanContext {
+        return NoopSpanContext::create();
+    }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function flush() {
-  }
+    public function flush(): void {
+    }
 
-  public function getSpans() {
-    return [];
-  }
+    public function getSpans() {
+        return [];
+    }
+
+    public function pause() {
+    }
+
+    public function resume() {
+    }
 
 }
