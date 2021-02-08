@@ -11,6 +11,7 @@ use Jaeger\Transport\TransportUdp;
 use OpenTracing\Reference;
 use OpenTracing\StartSpanOptions;
 use PHPUnit\Framework\TestCase;
+use OpenTracing\NoopSpan;
 use Tracing\JaegerTracer;
 
 
@@ -27,14 +28,15 @@ final class TracerTest extends TestCase {
         $sampler      = new ConstSampler();
         $scopeManager = new ScopeManager();
 
-        $originJaeger =  new OriginalJaeger('jaeger', $reporter, $sampler, $scopeManager);
+        $originJaeger = new OriginalJaeger('jaeger', $reporter, $sampler, $scopeManager);
+
         return new JaegerTracer($originJaeger);
     }
 
 
     public function testNew() {
         $Jaeger = $this->getJaeger();
-        $this->assertInstanceOf(Jaeger::class, $Jaeger);
+        $this->assertInstanceOf(JaegerTracer::class, $Jaeger);
     }
 
     public function testStartSpan() {
@@ -42,13 +44,14 @@ final class TracerTest extends TestCase {
         $span   = $Jaeger->buildSpan('test')->start();
 
         $this->assertNotEmpty($span->startTime);
-        $this->assertNotEmpty($Jaeger->getSpans());
+        $this->assertNotNull($span);
     }
 
     public function testStartSpanWithFollowsFromTypeRef() {
-        $this->markTestIncomplete('testStartSpanWithFollowsFromTypeRef');
+        //$this->markTestIncomplete('testStartSpanWithFollowsFromTypeRef');
 
         $jaeger    = $this->getJaeger();
+
         $rootSpan  = $jaeger->buildSpan('root-a')->start();
         $childSpan = $jaeger->buildSpan('span-a')
                             ->addReference(Reference::FOLLOWS_FROM, $rootSpan)
@@ -95,11 +98,11 @@ final class TracerTest extends TestCase {
     }
 
     public function test__StartSpan__With_AsChildOf() {
-        $jaeger        = $this->getJaeger();
-        $rootSpan      = $jaeger->buildSpan('root-a')->start();
+        $jaeger   = $this->getJaeger();
+        $rootSpan = $jaeger->buildSpan('root-a')->start();
 
         $childSpan = $jaeger->buildSpan('span-a')
-                            ->asChildOf(Reference::CHILD_OF, $rootSpan)
+                            ->asChildOf($rootSpan)
                             ->start();
 
         $this->assertSame($childSpan->spanContext->traceIdLow, $rootSpan->spanContext->traceIdLow);
@@ -117,9 +120,9 @@ final class TracerTest extends TestCase {
 
     public function testStartActiveSpan() {
         $Jaeger = $this->getJaeger();
-        $Jaeger->buildSpan('test')->startActive();
+        $scope  = $Jaeger->buildSpan('test')->startActive();
 
-        $this->assertNotEmpty($Jaeger->getSpans());
+        $this->assertEquals($scope->getSpan(), $Jaeger->getActiveSpan());
     }
 
     public function testGetActiveSpan() {
@@ -138,7 +141,6 @@ final class TracerTest extends TestCase {
         $this->assertEmpty($Jaeger->getSpans());
     }
 
-
     public function testNestedSpanBaggage() {
         $tracer = $this->getJaeger();
 
@@ -150,4 +152,23 @@ final class TracerTest extends TestCase {
         $this->assertEquals($parent->getBaggageItem('key'), $child->getBaggageItem('key'));
     }
 
+    public function test__Pause__Success() {
+        $tracer = $this->getJaeger();
+        $tracer->pause();
+
+        $span = $tracer->buildSpan('operation')->start();
+        $this->assertInstanceOf(NoopSpan::class, $span);
+    }
+
+    public function test__Resume__Success() {
+        $tracer = $this->getJaeger();
+        $tracer->pause();
+
+        $span = $tracer->buildSpan('operationA')->start();
+        $this->assertInstanceOf(NoopSpan::class, $span);
+
+        $tracer->resume();
+        $span = $tracer->buildSpan('operationB')->start();
+        $this->assertInstanceOf(Span::class, $span);
+    }
 }
