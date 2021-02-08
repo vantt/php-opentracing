@@ -27,22 +27,22 @@ final class NoopTracer implements Tracer, PauseAbleInterface, BuildableInterface
         return NoopScopeManager::create();
     }
 
-    public function getActiveSpan(): ?Span {
+    public function getActiveSpan()  {
         return NoopScope::create();
     }
 
-    public function startActiveSpan(string $operationName, $options = []): Scope {
+    public function startActiveSpan($operationName, $options = []) {
         return NoopSpan::create();
     }
 
-    public function startSpan(string $operationName, $options = []): Span {
+    public function startSpan($operationName, $options = []) {
         return NoopSpan::create();
     }
 
-    public function inject(SpanContext $spanContext, string $format, &$carrier): void {
+    public function inject(SpanContext $spanContext, $format, &$carrier) {
     }
 
-    public function extract(string $format, $carrier): ?SpanContext {
+    public function extract($format, $carrier) {
         return NoopSpanContext::create();
     }
 
