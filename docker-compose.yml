@@ -11,7 +11,7 @@ services:
                 chmod +x composer &&
                 ./composer install &&
                 php /app/vendor/phpunit/phpunit/phpunit --configuration /app/phpunit.xml --color=always --testdox --verbose &&
-                rm composer
+                rm -rf vendor && rm -f composer.lock && rm composer
             "
 
 #    php56:
@@ -26,5 +26,5 @@ services:
 #                chmod +x composer &&
 #                ./composer install &&
 #                php /app/vendor/phpunit/phpunit/phpunit --configuration /app/phpunit.xml --color=always --testdox --verbose &&
-#                rm composer
+#                rm -rf vendor && rm -f composer.lock && rm composer
 #            "
