@@ -30,7 +30,7 @@ class JaegerTracer implements Tracer, PauseAbleInterface, BuildableInterface {
         $this->_tracer     = $tracer;
     }
 
-    private function fromConfig(array $arrConfig = []) {
+    public function fromConfig(array $arrConfig = []) {
         if (empty($arrConfig['name']) || empty($arrConfig['host_port']) || empty($arrConfig['sampler_type'])) {
             throw new InvalidArgumentException('Missing arguments: [name, host, sampler_type]');
         }

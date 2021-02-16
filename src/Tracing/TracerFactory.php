@@ -42,7 +42,7 @@ class TracerFactory {
         $tracer = null;
         switch ($strType) {
             case 'jaeger':
-                $tracer = new JaegerTracer($arrConfig);
+                $tracer = JaegerTracer::fromConfig($arrConfig);
                 break;
 
             default:
